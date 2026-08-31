@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd"[]>
+<mapper namespace="com.fiveelements.calendar.auth.mapper.AuthMapper">
+  <insert id="insertUser">INSERT INTO app_user(phone,password,nickname) VALUES(#{phone},#{password},#{nickname})
+  </insert>
+  <select id="lastInsertId" resultType="long">SELECT LAST_INSERT_ID()</select>
+  <select id="selectUserByPhone" resultType="com.fiveelements.calendar.auth.domain.AuthDtos$UserRow">SELECT
+    id,phone,password,status,cancel_status FROM app_user WHERE phone=#{phone} AND del_flag='0'
+  </select>
+  <update id="updateLogin">UPDATE app_user SET last_login_time=NOW(),last_login_ip=#{ip} WHERE id=#{id}</update>
+  <insert id="insertLoginSuccess">INSERT INTO app_login_log(user_id,phone,device_id,platform,ip_address,success_flag)
+    VALUES(#{userId},#{request.phone},#{request.deviceId},#{request.platform},#{ip},'1')
+  </insert>
+  <select id="selectRefresh" resultType="com.fiveelements.calendar.auth.domain.AuthDtos$RefreshRow">SELECT
+    t.id,t.user_id,u.phone FROM auth_refresh_token t JOIN app_user u ON u.id=t.user_id WHERE t.token_hash=#{hash} AND
+    t.revoked_at IS NULL AND t.expires_at&gt;NOW() AND u.status='0' AND u.cancel_status='0'
+  </select>
+  <update id="revokeById">UPDATE auth_refresh_token SET revoked_at=NOW() WHERE id=#{id}</update>
+  <update id="revokeByHash">UPDATE auth_refresh_token SET revoked_at=NOW() WHERE token_hash=#{hash} AND revoked_at IS
+    NULL
+  </update>
+  <insert id="insertLoginFailure">INSERT INTO
+    app_login_log(phone,device_id,platform,ip_address,success_flag,failure_reason)
+    VALUES(#{request.phone},#{request.deviceId},#{request.platform},#{ip},'0',#{reason})
+  </insert>
+  <insert id="insertRefresh">INSERT INTO auth_refresh_token(user_id,token_hash,expires_at)
+    VALUES(#{userId},#{hash},#{expires})
+  </insert>
+  <insert id="upsertDevice">INSERT INTO
+    user_device(user_id,device_id,platform,device_model,system_version,app_version,last_active_time,status)
+    VALUES(#{userId},#{deviceId},#{platform},#{model},#{systemVersion},#{appVersion},NOW(),'0') ON DUPLICATE KEY UPDATE
+    platform=VALUES(platform),device_model=VALUES(device_model),system_version=VALUES(system_version),app_version=VALUES(app_version),last_active_time=NOW(),status='0'
+  </insert>
+</mapper>

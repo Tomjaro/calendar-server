@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd"[]>
+<mapper namespace="com.fiveelements.calendar.admin.mapper.SupportMapper">
+  <select id="selectVersions" resultType="map">SELECT id,platform,channel,version_name versionName,version_code
+    versionCode,download_url downloadUrl,release_notes releaseNotes,force_update forceUpdate,rollout_percent
+    rolloutPercent,package_sha256 packageSha256,min_supported_version_code minSupportedVersionCode,publish_time
+    publishTime FROM app_version WHERE platform=#{platform} AND channel=#{channel} AND status='1' ORDER BY version_code
+    DESC
+  </select>
+  <insert id="insertFeedback">INSERT INTO user_feedback(user_id,contact,content)
+    VALUES(#{userId},#{contact},#{content})
+  </insert>
+  <select id="lastInsertId" resultType="long">SELECT LAST_INSERT_ID()</select>
+  <select id="selectFeedback" resultType="map">SELECT id,content,status,admin_reply adminReply,create_time
+    createTime,update_time updateTime FROM user_feedback WHERE user_id=#{userId} ORDER BY id DESC LIMIT #{limit} OFFSET
+    #{offset}
+  </select>
+</mapper>

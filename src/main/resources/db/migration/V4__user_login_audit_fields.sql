@@ -1,0 +1,3 @@
+ALTER TABLE app_user
+  ADD COLUMN last_login_time DATETIME DEFAULT NULL,
+  ADD COLUMN last_login_ip VARCHAR(64) DEFAULT NULL;

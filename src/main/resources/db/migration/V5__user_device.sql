@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS user_device (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  device_id VARCHAR(128) NOT NULL,
+  platform VARCHAR(16) NOT NULL DEFAULT 'UNKNOWN',
+  device_model VARCHAR(128) DEFAULT NULL,
+  system_version VARCHAR(64) DEFAULT NULL,
+  app_version VARCHAR(32) DEFAULT NULL,
+  last_active_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+  status CHAR(1) NOT NULL DEFAULT '0' COMMENT '0正常 1已退出',
+  create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY(id), UNIQUE KEY uk_user_device(user_id,device_id), KEY idx_user_active(user_id,last_active_time)
+) COMMENT='用户设备';

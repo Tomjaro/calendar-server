@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd"[]>
+<mapper namespace="com.fiveelements.calendar.user.mapper.UserMapper">
+  <select id="selectProfile" resultType="com.fiveelements.calendar.user.domain.UserDtos$UserRow">SELECT
+    id,phone,nickname,avatar_url,gender,birthday,region,signature,create_time FROM app_user WHERE id=#{id} AND
+    del_flag='0'
+  </select>
+  <update id="updateProfile">UPDATE app_user SET
+    nickname=#{request.nickname},avatar_url=#{request.avatarUrl},gender=#{gender},birthday=#{request.birthday},region=#{request.region},signature=#{request.signature}
+    WHERE id=#{id} AND del_flag='0'
+  </update>
+  <insert id="insertProfileLog">INSERT INTO app_operation_log(user_id,module_code,operation_code,object_type,object_id)
+    VALUES(#{id},'USER','PROFILE_UPDATE','USER',CAST(#{id} AS CHAR))
+  </insert>
+  <select id="selectDevices" resultType="com.fiveelements.calendar.user.domain.UserDtos$DeviceView">SELECT
+    id,device_id,platform,device_model,system_version,app_version,last_active_time,status FROM user_device WHERE
+    user_id=#{userId} ORDER BY last_active_time DESC
+  </select>
+  <update id="disableDevice">UPDATE user_device SET status='1' WHERE user_id=#{userId} AND device_id=#{deviceId}
+  </update>
+</mapper>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd"[]>
+<mapper namespace="com.fiveelements.calendar.diary.mapper.DiaryCommentMapper">
+  <select id="selectViews" resultType="com.fiveelements.calendar.diary.domain.CommentView">
+    SELECT c.id,c.user_id,COALESCE(NULLIF(u.nickname,''),'五行朋友') author_name,u.avatar_url,
+    c.content,c.parent_id,c.reply_to_user_id,COALESCE(NULLIF(ru.nickname,''),'') reply_to_name,
+    c.user_id=#{viewerId} mine,c.create_time
+    FROM diary_comment c JOIN app_user u ON u.id=c.user_id
+    LEFT JOIN app_user ru ON ru.id=c.reply_to_user_id
+    WHERE c.diary_id=#{diaryId} AND c.status='0' ORDER BY c.create_time,c.id
+  </select>
+  <select id="selectViewById" resultType="com.fiveelements.calendar.diary.domain.CommentView">
+    SELECT c.id,c.user_id,COALESCE(NULLIF(u.nickname,''),'五行朋友') author_name,u.avatar_url,
+    c.content,c.parent_id,c.reply_to_user_id,COALESCE(NULLIF(ru.nickname,''),'') reply_to_name,
+    TRUE mine,c.create_time
+    FROM diary_comment c JOIN app_user u ON u.id=c.user_id
+    LEFT JOIN app_user ru ON ru.id=c.reply_to_user_id WHERE c.id=#{id} AND c.status='0'
+  </select>
+  <select id="selectRootId" resultType="java.lang.Long">
+    SELECT COALESCE(parent_id,id) FROM diary_comment WHERE id=#{id} AND diary_id=#{diaryId} AND status='0'
+  </select>
+</mapper>
