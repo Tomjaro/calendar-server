@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface FileRecordMapper extends BaseMapper<FileRecord> {
-  int countDiaryUsage(@Param("id") long id, @Param("userId") long userId);
+  int countUsage(@Param("id") long id, @Param("userId") long userId);
 
   List<FileRecord> selectActiveFiles();
 }

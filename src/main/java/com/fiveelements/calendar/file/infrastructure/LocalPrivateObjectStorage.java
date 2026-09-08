@@ -1,5 +1,6 @@
-package com.fivelements.calendar.file.infrastructure;
+package com.fiveelements.calendar.file.infrastructure;
 
+import com.fiveelements.calendar.file.domain.ObjectStoragePort;
 import java.nio.file.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -7,8 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnProperty(name = "app.file.storage-type", havingValue = "local", matchIfMissing = true)
-public class LocalPrivateObjectStorage
-    implements com.fiveelements.calendar.file.service.PrivateFileService.StoragePort {
+public class LocalPrivateObjectStorage implements ObjectStoragePort {
   private final Path root;
 
   public LocalPrivateObjectStorage(@Value("${app.file.storage-path}") String path)

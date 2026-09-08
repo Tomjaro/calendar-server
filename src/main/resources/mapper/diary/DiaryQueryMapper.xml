@@ -9,6 +9,10 @@
     mood_code,COUNT(*) count FROM diary_record WHERE user_id=#{userId} AND status='1' AND record_date BETWEEN #{start}
     AND #{end} AND mood_code IS NOT NULL GROUP BY mood_code ORDER BY count DESC
   </select>
+  <select id="selectDailyScores" resultType="com.fiveelements.calendar.diary.domain.DiaryQueryModels$DailyMood">SELECT
+    record_date date,AVG(mood_score) score FROM diary_record WHERE user_id=#{userId} AND status='1' AND record_date
+    BETWEEN #{start} AND #{end} AND mood_score IS NOT NULL GROUP BY record_date ORDER BY record_date
+  </select>
   <select id="selectTags" resultType="com.fiveelements.calendar.diary.domain.DiaryQueryModels$TagView">SELECT
     id,tag_name,use_count FROM diary_tag WHERE user_id=#{userId} ORDER BY use_count DESC,tag_name LIMIT 100
   </select>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fiveelements.calendar.record.mapper.UserRecordMapper">
+ <select id="selectRecords" resultType="com.fiveelements.calendar.record.domain.RecordModels$RecordRow">SELECT e.id,e.content,e.plain_content plainContent,e.content_format contentFormat,GROUP_CONCAT(DISTINCT t.tag_name ORDER BY t.tag_name SEPARATOR '||') tagsText,e.create_time createTime FROM user_record_entry e LEFT JOIN user_record_entry_tag et ON et.entry_id=e.id LEFT JOIN user_record_tag t ON t.id=et.tag_id AND t.user_id=#{userId} WHERE e.user_id=#{userId} AND (#{keyword}='' OR e.plain_content LIKE #{keywordLike}) AND (#{tag}='' OR EXISTS (SELECT 1 FROM user_record_entry_tag xt JOIN user_record_tag x ON x.id=xt.tag_id WHERE xt.entry_id=e.id AND x.user_id=#{userId} AND x.tag_name=#{tag})) GROUP BY e.id,e.content,e.plain_content,e.content_format,e.create_time ORDER BY e.create_time DESC,e.id DESC</select>
+ <select id="selectRecord" resultType="com.fiveelements.calendar.record.domain.RecordModels$RecordRow">SELECT e.id,e.content,e.plain_content plainContent,e.content_format contentFormat,GROUP_CONCAT(DISTINCT t.tag_name ORDER BY t.tag_name SEPARATOR '||') tagsText,e.create_time createTime FROM user_record_entry e LEFT JOIN user_record_entry_tag et ON et.entry_id=e.id LEFT JOIN user_record_tag t ON t.id=et.tag_id AND t.user_id=#{userId} WHERE e.user_id=#{userId} AND e.id=#{id} GROUP BY e.id,e.content,e.plain_content,e.content_format,e.create_time</select>
+ <select id="selectTags" resultType="com.fiveelements.calendar.record.domain.RecordModels$TagView">SELECT t.tag_name name,COUNT(et.entry_id) useCount FROM user_record_tag t LEFT JOIN user_record_entry_tag et ON et.tag_id=t.id WHERE t.user_id=#{userId} GROUP BY t.id,t.tag_name ORDER BY useCount DESC,t.tag_name</select>
+ <insert id="insertRecord">INSERT INTO user_record_entry(user_id,group_id,content,plain_content,content_format) VALUES(#{userId},NULL,#{content},#{plainContent},'RICH_TEXT')</insert>
+ <update id="updateRecord">UPDATE user_record_entry SET content=#{content},plain_content=#{plainContent},content_format='RICH_TEXT' WHERE user_id=#{userId} AND id=#{id}</update>
+ <select id="lastInsertId" resultType="long">SELECT LAST_INSERT_ID()</select>
+ <insert id="insertTag">INSERT IGNORE INTO user_record_tag(user_id,tag_name) VALUES(#{userId},#{name})</insert>
+ <select id="selectTagId" resultType="long">SELECT id FROM user_record_tag WHERE user_id=#{userId} AND tag_name=#{name}</select>
+ <insert id="insertRecordTag">INSERT IGNORE INTO user_record_entry_tag(entry_id,tag_id) VALUES(#{entryId},#{tagId})</insert>
+ <insert id="insertRecordFile">INSERT IGNORE INTO user_record_entry_file(entry_id,user_id,file_id) SELECT #{entryId},#{userId},id FROM file_record WHERE id=#{fileId} AND user_id=#{userId} AND status='0'</insert>
+ <delete id="deleteRecordFiles">DELETE FROM user_record_entry_file WHERE user_id=#{userId} AND entry_id=#{id}</delete>
+ <delete id="deleteRecordTags">DELETE et FROM user_record_entry_tag et JOIN user_record_entry e ON e.id=et.entry_id WHERE e.user_id=#{userId} AND e.id=#{id}</delete>
+ <delete id="deleteRecord">DELETE FROM user_record_entry WHERE user_id=#{userId} AND id=#{id}</delete>
+</mapper>

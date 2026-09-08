@@ -1,6 +1,7 @@
 package com.fiveelements.calendar.file.infrastructure;
 
 import com.fiveelements.calendar.file.domain.FileRecord;
+import com.fiveelements.calendar.file.domain.ObjectStoragePort;
 import com.fiveelements.calendar.file.mapper.FileRecordMapper;
 import java.nio.file.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,12 +14,12 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "app.file.migration.enabled", havingValue = "true")
 public class PrivateFileMigrationRunner implements ApplicationRunner {
   private final FileRecordMapper mapper;
-  private final com.fiveelements.calendar.file.service.PrivateFileService.StoragePort storage;
+  private final ObjectStoragePort storage;
   private final Path source;
 
   public PrivateFileMigrationRunner(
       FileRecordMapper mapper,
-      com.fiveelements.calendar.file.service.PrivateFileService.StoragePort storage,
+      ObjectStoragePort storage,
       @Value("${app.file.migration.local-path}") String source) {
     this.mapper = mapper;
     this.storage = storage;

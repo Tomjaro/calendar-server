@@ -26,7 +26,8 @@ public class DiaryQueryService {
         summary.recordedDays(),
         summary.averageMoodScore(),
         summary.favoriteCount(),
-        mapper.selectMoodCounts(userId, start, end));
+        mapper.selectMoodCounts(userId, start, end),
+        mapper.selectDailyScores(userId, start, end));
   }
 
   public List<TagView> tags(long userId) {

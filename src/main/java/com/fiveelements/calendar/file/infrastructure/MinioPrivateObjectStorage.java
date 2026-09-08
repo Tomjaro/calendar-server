@@ -1,5 +1,6 @@
 package com.fiveelements.calendar.file.infrastructure;
 
+import com.fiveelements.calendar.file.domain.ObjectStoragePort;
 import io.minio.*;
 import java.io.ByteArrayInputStream;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,8 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnProperty(name = "app.file.storage-type", havingValue = "minio")
-public class MinioPrivateObjectStorage
-    implements com.fiveelements.calendar.file.service.PrivateFileService.StoragePort {
+public class MinioPrivateObjectStorage implements ObjectStoragePort {
   private final MinioClient client;
   private final String bucket;
 

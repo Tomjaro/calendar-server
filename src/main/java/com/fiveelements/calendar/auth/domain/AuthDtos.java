@@ -37,10 +37,15 @@ public final class AuthDtos {
   public record RefreshRequest(@NotBlank String refreshToken) {}
 
   public record TokenResponse(
-      long userId, String accessToken, String refreshToken, long expiresInSeconds) {}
+      long userId,
+      String nickname,
+      String maskedPhone,
+      String accessToken,
+      String refreshToken,
+      long expiresInSeconds) {}
 
   public record UserRow(
-      long id, String phone, String password, String status, String cancelStatus) {}
+      long id, String phone, String password, String status, String cancelStatus, String nickname) {}
 
-  public record RefreshRow(long id, long userId, String phone) {}
+  public record RefreshRow(long id, long userId, String phone, String nickname) {}
 }

@@ -75,12 +75,6 @@ public class DiaryController {
     return ApiResponse.ok(service.search(userId(), keyword, startDate, endDate, mood, tag));
   }
 
-  @GetMapping("/discover")
-  public ApiResponse<List<FeedView>> discover(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
-    return ApiResponse.ok(service.discover(userId(), page, size));
-  }
-
   private long userId() {
     return SecurityContext.currentUser().userId();
   }

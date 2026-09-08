@@ -45,10 +45,9 @@ public class AuthService {
   public TokenResponse register(RegisterRequest request) {
     smsCodeService.verifyAndConsumeRegisterCode(request.phone(), request.code());
     try {
+      String nickname = "五行用户" + request.phone().substring(7);
       mapper.insertUser(
-          request.phone(),
-          passwordEncoder.encode(request.password()),
-          "五行用户" + request.phone().substring(7));
+          request.phone(), passwordEncoder.encode(request.password()), nickname);
       Long id = mapper.lastInsertId();
       registerDevice(
           id,
@@ -57,7 +56,7 @@ public class AuthService {
           request.deviceModel(),
           request.systemVersion(),
           request.appVersion());
-      return issueTokens(id, request.phone());
+      return issueTokens(id, request.phone(), nickname);
     } catch (DuplicateKeyException exception) {
       throw new IllegalArgumentException("该手机号已经注册");
     }
@@ -83,7 +82,7 @@ public class AuthService {
         request.deviceModel(),
         request.systemVersion(),
         request.appVersion());
-    return issueTokens(user.id(), user.phone());
+    return issueTokens(user.id(), user.phone(), user.nickname());
   }
 
   @Transactional
@@ -92,7 +91,7 @@ public class AuthService {
     RefreshRow row = mapper.selectRefresh(hash);
     if (row == null) throw new BadCredentialsException("Refresh Token 无效或已过期");
     mapper.revokeById(row.id());
-    return issueTokens(row.userId(), row.phone());
+    return issueTokens(row.userId(), row.phone(), row.nickname());
   }
 
   public void logout(String token) {
@@ -103,12 +102,19 @@ public class AuthService {
     mapper.insertLoginFailure(request, ip, reason);
   }
 
-  private TokenResponse issueTokens(long userId, String phone) {
+  private TokenResponse issueTokens(long userId, String phone, String nickname) {
     byte[] bytes = new byte[48];
     random.nextBytes(bytes);
     String refresh = java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     mapper.insertRefresh(userId, sha256(refresh), LocalDateTime.now().plusDays(refreshDays));
-    return new TokenResponse(userId, jwtService.createAccessToken(userId, phone), refresh, 7200);
+    String name = nickname == null || nickname.isBlank() ? "五行用户" + phone.substring(7) : nickname;
+    return new TokenResponse(
+        userId, name, maskPhone(phone), jwtService.createAccessToken(userId, phone), refresh, 7200);
+  }
+
+  private String maskPhone(String phone) {
+    if (phone == null || phone.length() < 11) return phone == null ? "" : phone;
+    return phone.substring(0, 3) + "****" + phone.substring(7);
   }
 
   private void registerDevice(

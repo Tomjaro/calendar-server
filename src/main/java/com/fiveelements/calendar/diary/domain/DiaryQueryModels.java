@@ -1,5 +1,6 @@
 package com.fiveelements.calendar.diary.domain;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public final class DiaryQueryModels {
@@ -7,13 +8,16 @@ public final class DiaryQueryModels {
 
   public record MoodCount(String moodCode, long count) {}
 
+  public record DailyMood(LocalDate date, Double score) {}
+
   public record MonthStatistics(
       int year,
       int month,
       long recordedDays,
       Double averageMoodScore,
       long favoriteCount,
-      List<MoodCount> moodDistribution) {}
+      List<MoodCount> moodDistribution,
+      List<DailyMood> dailyTrend) {}
 
   public record Summary(long recordedDays, Double averageMoodScore, long favoriteCount) {}
 

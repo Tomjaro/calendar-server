@@ -13,7 +13,7 @@ import com.fiveelements.calendar.config.RequestCorrelationFilter;
 import com.fiveelements.calendar.config.SecurityConfig;
 import com.fiveelements.calendar.security.JwtAuthenticationFilter;
 import com.fiveelements.calendar.security.JwtService;
-import com.fivelements.calendar.admin.domain.AdminPrincipal;
+import com.fiveelements.calendar.admin.domain.AdminPrincipal;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

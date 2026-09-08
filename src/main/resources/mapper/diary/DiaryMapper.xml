@@ -3,7 +3,7 @@
 <mapper namespace="com.fiveelements.calendar.diary.mapper.DiaryMapper">
   <sql id="viewColumns">
     id,record_date,mood_code,mood_score,activity_content,feeling_content,keyword_text,status,is_favorite='1'
-    favorite,IF(privacy_type='1','PUBLIC','PRIVATE') privacy_type,server_version,create_time,update_time
+    favorite,server_version,create_time,update_time
   </sql>
   <select id="selectList" resultType="com.fiveelements.calendar.diary.domain.DiaryDtos$DiaryView">SELECT
     <include refid="viewColumns"/>
@@ -19,12 +19,12 @@
     FROM diary_record WHERE id=#{id} AND user_id=#{userId}
   </select>
   <insert id="insertDiary">INSERT INTO
-    diary_record(user_id,record_date,mood_code,mood_score,activity_content,feeling_content,keyword_text,status,is_favorite,privacy_type,client_update_time)
-    VALUES(#{userId},#{request.recordDate},#{request.moodCode},#{request.moodScore},#{activity},#{feeling},#{request.keywordText},#{status},#{favorite},#{privacy},NOW())
+    diary_record(user_id,record_date,mood_code,mood_score,activity_content,feeling_content,keyword_text,status,is_favorite,client_update_time)
+    VALUES(#{userId},#{request.recordDate},#{request.moodCode},#{request.moodScore},#{activity},#{feeling},#{request.keywordText},#{status},#{favorite},NOW())
   </insert>
   <select id="lastInsertId" resultType="long">SELECT LAST_INSERT_ID()</select>
   <update id="updateDiary">UPDATE diary_record SET
-    mood_code=#{request.moodCode},mood_score=#{request.moodScore},activity_content=#{activity},feeling_content=#{feeling},keyword_text=#{request.keywordText},status=#{status},is_favorite=#{favorite},privacy_type=#{privacy},client_update_time=NOW(),server_version=server_version+1
+    mood_code=#{request.moodCode},mood_score=#{request.moodScore},activity_content=#{activity},feeling_content=#{feeling},keyword_text=#{request.keywordText},status=#{status},is_favorite=#{favorite},client_update_time=NOW(),server_version=server_version+1
     WHERE id=#{id} AND user_id=#{userId} AND status&lt;&gt;'2' AND server_version=#{request.serverVersion}
   </update>
   <update id="softDelete">UPDATE diary_record SET status='2',delete_time=NOW(),server_version=server_version+1 WHERE
@@ -41,19 +41,11 @@
   <delete id="permanentDelete">DELETE FROM diary_record WHERE id=#{id} AND user_id=#{userId} AND status='2'</delete>
   <select id="search" resultType="com.fiveelements.calendar.diary.domain.DiaryDtos$DiaryView">SELECT DISTINCT
     d.id,d.record_date,d.mood_code,d.mood_score,d.activity_content,d.feeling_content,d.keyword_text,d.status,d.is_favorite='1'
-    favorite,IF(d.privacy_type='1','PUBLIC','PRIVATE') privacy_type,d.server_version,d.create_time,d.update_time FROM
+    favorite,d.server_version,d.create_time,d.update_time FROM
     diary_record d LEFT JOIN diary_tag_relation r ON r.diary_id=d.id LEFT JOIN diary_tag t ON t.id=r.tag_id WHERE
     d.user_id=#{userId} AND d.status&lt;&gt;'2' AND d.record_date BETWEEN #{start} AND #{end} AND (#{keyword}='' OR
     d.activity_content LIKE #{pattern} OR d.feeling_content LIKE #{pattern} OR d.keyword_text LIKE #{pattern}) AND
     (#{mood}='' OR d.mood_code=#{mood}) AND (#{tag}='' OR t.tag_name=#{tag}) ORDER BY d.record_date DESC
-  </select>
-  <select id="discover" resultType="com.fiveelements.calendar.diary.domain.DiaryDtos$FeedView">SELECT d.id,d.user_id
-    author_id,COALESCE(NULLIF(u.nickname,''),'五行朋友')
-    author_name,u.avatar_url,d.record_date,d.mood_code,d.mood_score,d.activity_content,d.feeling_content,'PUBLIC'
-    privacy_type,d.user_id=#{viewerId} mine,(SELECT COUNT(*) FROM diary_comment c WHERE c.diary_id=d.id AND
-    c.status='0') comment_count,d.create_time,d.update_time FROM diary_record d JOIN app_user u ON u.id=d.user_id AND
-    u.status='0' AND u.del_flag='0' WHERE d.status='1' AND d.privacy_type='1' ORDER BY d.create_time DESC,d.id DESC
-    LIMIT #{limit} OFFSET #{offset}
   </select>
   <insert id="insertMigration">INSERT INTO
     guest_data_migration(user_id,guest_id_hash,migration_batch_no,total_count,status)
@@ -76,6 +68,10 @@
   </insert>
   <insert id="insertTagRelation">INSERT IGNORE INTO diary_tag_relation(diary_id,tag_id) VALUES(#{diaryId},#{tagId})
   </insert>
+  <delete id="deleteTagRelationsByName">DELETE r FROM diary_tag_relation r INNER JOIN diary_tag t ON t.id=r.tag_id
+    WHERE t.user_id=#{userId} AND t.tag_name=#{name}
+  </delete>
+  <delete id="deleteTag">DELETE FROM diary_tag WHERE user_id=#{userId} AND tag_name=#{name}</delete>
   <delete id="deleteImages">DELETE FROM diary_image WHERE diary_id=#{diaryId} AND user_id=#{userId}</delete>
   <select id="countOwnedFile" resultType="int">SELECT COUNT(*) FROM file_record WHERE id=#{fileId} AND user_id=#{userId}
     AND status='0'

@@ -3,7 +3,6 @@ package com.fiveelements.calendar.diary.domain;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,7 +22,6 @@ public final class DiaryDtos {
       @Size(max = 9) List<Long> fileIds,
       @NotNull Integer serverVersion,
       boolean favorite,
-      @Pattern(regexp = "PRIVATE|PUBLIC") String privacyType,
       boolean draft) {}
 
   public record DiaryView(
@@ -36,24 +34,7 @@ public final class DiaryDtos {
       String keywordText,
       String status,
       boolean favorite,
-      String privacyType,
       int serverVersion,
-      LocalDateTime createTime,
-      LocalDateTime updateTime) {}
-
-  public record FeedView(
-      long id,
-      long authorId,
-      String authorName,
-      String avatarUrl,
-      LocalDate recordDate,
-      String moodCode,
-      Integer moodScore,
-      String activityContent,
-      String feelingContent,
-      String privacyType,
-      boolean mine,
-      long commentCount,
       LocalDateTime createTime,
       LocalDateTime updateTime) {}
 

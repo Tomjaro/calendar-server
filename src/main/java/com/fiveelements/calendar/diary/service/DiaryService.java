@@ -36,8 +36,7 @@ public class DiaryService {
           safe(r.activityContent()),
           safe(r.feelingContent()),
           r.draft() ? "0" : "1",
-          r.favorite() ? "1" : "0",
-          privacy(r.privacyType()));
+          r.favorite() ? "1" : "0");
       long id = mapper.lastInsertId();
       syncTags(uid, id, r.tags());
       syncImages(uid, id, r.fileIds());
@@ -58,8 +57,7 @@ public class DiaryService {
             safe(r.activityContent()),
             safe(r.feelingContent()),
             r.draft() ? "0" : "1",
-            r.favorite() ? "1" : "0",
-            privacy(r.privacyType()));
+            r.favorite() ? "1" : "0");
     if (n == 0) throw new DiaryConflictException("云端记录已变化，请先刷新后再选择保留本机或云端内容");
     syncTags(uid, id, r.tags());
     syncImages(uid, id, r.fileIds());
@@ -97,9 +95,13 @@ public class DiaryService {
     return mapper.search(uid, key, "%" + key + "%", start, end, clean(mood), clean(tag));
   }
 
-  public List<FeedView> discover(long uid, int page, int size) {
-    int safeSize = Math.max(1, Math.min(size, 50));
-    return mapper.discover(uid, safeSize, Math.max(0, page) * safeSize);
+  @Transactional
+  public void deleteTag(long uid, String name) {
+    String tagName = clean(name);
+    if (tagName.isEmpty()) return;
+    mapper.deleteTagRelationsByName(uid, tagName);
+    mapper.deleteTag(uid, tagName);
+    log(uid, "TAG_DELETE", tagName);
   }
 
   @Transactional
@@ -138,10 +140,6 @@ public class DiaryService {
     return v == null ? "" : v.trim();
   }
 
-  private String privacy(String v) {
-    return "PUBLIC".equals(v) ? "1" : "0";
-  }
-
   private void syncTags(long uid, long id, List<String> tags) {
     mapper.deleteTagRelations(id);
     if (tags == null) return;
@@ -169,6 +167,10 @@ public class DiaryService {
   }
 
   private void log(long uid, String operation, long id) {
-    mapper.insertOperationLog(uid, operation, String.valueOf(id));
+    log(uid, operation, String.valueOf(id));
+  }
+
+  private void log(long uid, String operation, String id) {
+    mapper.insertOperationLog(uid, operation, id);
   }
 }

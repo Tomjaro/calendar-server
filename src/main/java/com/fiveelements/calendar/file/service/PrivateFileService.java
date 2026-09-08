@@ -2,6 +2,7 @@ package com.fiveelements.calendar.file.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fiveelements.calendar.file.domain.FileRecord;
+import com.fiveelements.calendar.file.domain.ObjectStoragePort;
 import com.fiveelements.calendar.file.mapper.FileRecordMapper;
 import java.security.MessageDigest;
 import java.util.*;
@@ -12,24 +13,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class PrivateFileService {
-  public interface StoragePort {
-    void put(String key, byte[] content, String contentType);
-
-    byte[] get(String key);
-
-    boolean exists(String key);
-
-    void delete(String key);
-  }
-
   private final FileRecordMapper mapper;
-  private final StoragePort storage;
+  private final ObjectStoragePort storage;
   private final long maxSize;
   private static final Set<String> TYPES = Set.of("image/jpeg", "image/png");
 
   public PrivateFileService(
       FileRecordMapper mapper,
-      StoragePort storage,
+      ObjectStoragePort storage,
       @Value("${app.file.max-size-bytes}") long maxSize) {
     this.mapper = mapper;
     this.storage = storage;
@@ -72,8 +63,8 @@ public class PrivateFileService {
 
   @Transactional
   public void delete(long userId, long id) {
-    if (mapper.countDiaryUsage(id, userId) > 0)
-      throw new IllegalArgumentException("图片正在被日记使用，请先从日记移除");
+    if (mapper.countUsage(id, userId) > 0)
+      throw new IllegalArgumentException("图片正在被记录使用，请先从记录移除");
     FileRow row = find(userId, id);
     storage.delete(row.storageKey());
     mapper.deleteById(id);

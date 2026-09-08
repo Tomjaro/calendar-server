@@ -12,5 +12,8 @@ public interface DiaryQueryMapper {
   List<MoodCount> selectMoodCounts(
       @Param("userId") long userId, @Param("start") LocalDate start, @Param("end") LocalDate end);
 
+  List<DailyMood> selectDailyScores(
+      @Param("userId") long userId, @Param("start") LocalDate start, @Param("end") LocalDate end);
+
   List<TagView> selectTags(@Param("userId") long userId);
 }

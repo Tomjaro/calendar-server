@@ -1,6 +1,7 @@
 package com.fiveelements.calendar.config;
 
 import com.fiveelements.calendar.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -62,6 +63,16 @@ public class SecurityConfig {
                     .permitAll()
                     .anyRequest()
                     .authenticated())
+        .exceptionHandling(
+            e ->
+                e.authenticationEntryPoint(
+                    (request, response, authException) -> {
+                      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                      response.setContentType("application/json;charset=UTF-8");
+                      response
+                          .getWriter()
+                          .write("{\"code\":401,\"message\":\"未登录或登录已过期\",\"data\":null}");
+                    }))
         .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
         .build();
   }

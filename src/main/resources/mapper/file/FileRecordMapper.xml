@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd"[]>
 <mapper namespace="com.fiveelements.calendar.file.mapper.FileRecordMapper">
-  <select id="countDiaryUsage" resultType="int">SELECT COUNT(*) FROM diary_image WHERE file_id=#{id} AND
-    user_id=#{userId}
+  <select id="countUsage" resultType="int">SELECT
+    (SELECT COUNT(*) FROM diary_image WHERE file_id=#{id} AND user_id=#{userId}) +
+    (SELECT COUNT(*) FROM user_record_entry_file WHERE file_id=#{id} AND user_id=#{userId})
   </select>
   <select id="selectActiveFiles" resultType="com.fiveelements.calendar.file.domain.FileRecord">SELECT
     id,user_id,storage_key,original_name,content_type,file_size,sha256,status FROM file_record WHERE status='0'

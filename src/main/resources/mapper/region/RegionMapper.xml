@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd"[]>
+<mapper namespace="com.fiveelements.calendar.region.mapper.RegionMapper">
+  <select id="selectProvinces" resultType="com.fiveelements.calendar.region.domain.RegionDtos$RegionView">
+    SELECT id,name,parentid parentId,leveltype levelType FROM city
+    WHERE leveltype=1 AND status='1' ORDER BY id
+  </select>
+  <select id="selectChildren" resultType="com.fiveelements.calendar.region.domain.RegionDtos$RegionView">
+    SELECT id,name,parentid parentId,leveltype levelType FROM city
+    WHERE parentid=#{parentId} AND status='1' ORDER BY id
+  </select>
+</mapper>

@@ -19,8 +19,7 @@ public interface DiaryMapper {
       @Param("activity") String activity,
       @Param("feeling") String feeling,
       @Param("status") String status,
-      @Param("favorite") String favorite,
-      @Param("privacy") String privacy);
+      @Param("favorite") String favorite);
 
   Long lastInsertId();
 
@@ -31,8 +30,7 @@ public interface DiaryMapper {
       @Param("activity") String activity,
       @Param("feeling") String feeling,
       @Param("status") String status,
-      @Param("favorite") String favorite,
-      @Param("privacy") String privacy);
+      @Param("favorite") String favorite);
 
   int softDelete(@Param("userId") long userId, @Param("id") long id);
 
@@ -50,9 +48,6 @@ public interface DiaryMapper {
       @Param("end") LocalDate end,
       @Param("mood") String mood,
       @Param("tag") String tag);
-
-  List<FeedView> discover(
-      @Param("viewerId") long viewerId, @Param("limit") int limit, @Param("offset") int offset);
 
   void insertMigration(
       @Param("userId") long userId,
@@ -80,6 +75,10 @@ public interface DiaryMapper {
   void upsertTag(@Param("userId") long userId, @Param("name") String name);
 
   void insertTagRelation(@Param("diaryId") long diaryId, @Param("tagId") long tagId);
+
+  void deleteTagRelationsByName(@Param("userId") long userId, @Param("name") String name);
+
+  int deleteTag(@Param("userId") long userId, @Param("name") String name);
 
   void deleteImages(@Param("userId") long userId, @Param("diaryId") long diaryId);
 

@@ -16,10 +16,12 @@ public class UserService {
   public ProfileView profile(long userId) {
     UserRow row = mapper.selectProfile(userId);
     if (row == null) throw new IllegalArgumentException("用户不存在");
+    String name = row.nickname();
+    if (name == null || name.isBlank()) name = "五行用户" + row.phone().substring(7);
     return new ProfileView(
         row.id(),
         mask(row.phone()),
-        row.nickname(),
+        name,
         row.avatarUrl(),
         row.gender(),
         row.birthday(),
