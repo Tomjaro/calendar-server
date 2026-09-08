@@ -1,2 +1,32 @@
-# 项目排除路径
-/target/
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
+.idea/
+.vscode/
+*.iml
+*.swp
+*~
+
+# Maven / Java
+target/
+*.class
+*.jar
+*.war
+hs_err_pid*
+replay_pid*
+
+# Logs / runtime
+*.log
+logs/
+*.pid
+data/private-uploads/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.p12
+*.jks
+*.keystore
