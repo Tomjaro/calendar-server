@@ -1,50 +1,93 @@
 spring:
+  application:
+    name: five-elements-calendar
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://139.196.253.234:3306/test?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:RunshuAdmin@123}
   data:
     redis:
-      host: ${REDIS_HOST}
+      host: ${REDIS_HOST:139.196.253.234}
       port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD}
-      database: ${REDIS_DATABASE:0}
-
+      password: ${REDIS_PASSWORD:RunshuAdmin@123}
+      database: ${REDIS_DATABASE:15}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+  jackson:
+    time-zone: Asia/Shanghai
+  servlet:
+    multipart:
+      max-file-size: 4MB
+      max-request-size: 4MB
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.fiveelements.calendar
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+      logic-delete-field: status
+      logic-delete-value: "1"
+      logic-not-delete-value: "0"
 server:
-  forward-headers-strategy: native
-  tomcat:
-    remoteip:
-      remote-ip-header: X-Forwarded-For
-      protocol-header: X-Forwarded-Proto
-      internal-proxies: ${TRUSTED_PROXY_REGEX:127\.0\.0\.1|::1|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}}
-
+  port: ${SERVER_PORT:8080}
 management:
-  server:
-    address: ${MANAGEMENT_ADDRESS:127.0.0.1}
-    port: ${MANAGEMENT_PORT:8081}
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${APP_ENVIRONMENT:development}
   tracing:
     sampling:
-      probability: ${TRACING_SAMPLE_PROBABILITY:0.1}
-
-logging:
-  config: classpath:logback-spring.xml
-
+      probability: ${TRACING_SAMPLE_PROBABILITY:0.0}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:http://localhost:4318/v1/traces}
 app:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
   auth:
-    jwt-secret: ${JWT_SECRET}
-    dev-sms-code: ${DEV_SMS_CODE:}
+    jwt-secret: ${JWT_SECRET:change-this-development-secret-at-least-32-bytes}
+    access-token-minutes: ${ACCESS_TOKEN_MINUTES:120}
+    refresh-token-days: ${REFRESH_TOKEN_DAYS:30}
+    dev-sms-code: ${DEV_SMS_CODE:246810}
     sms:
-      gateway-url: ${SMS_GATEWAY_URL}
-      gateway-token: ${SMS_GATEWAY_TOKEN}
+      gateway-url: ${SMS_GATEWAY_URL:}
+      gateway-token: ${SMS_GATEWAY_TOKEN:}
       template-code: ${SMS_TEMPLATE_CODE:REGISTER}
+      code-ttl-seconds: ${SMS_CODE_TTL_SECONDS:300}
+      cooldown-seconds: ${SMS_COOLDOWN_SECONDS:60}
+      phone-daily-limit: ${SMS_PHONE_DAILY_LIMIT:10}
+      ip-hourly-limit: ${SMS_IP_HOURLY_LIMIT:30}
+      max-verification-failures: ${SMS_MAX_VERIFICATION_FAILURES:5}
   file:
-    storage-type: ${FILE_STORAGE_TYPE:minio}
+    storage-type: ${FILE_STORAGE_TYPE:local}
+    storage-path: ${FILE_STORAGE_PATH:./data/private-uploads}
+    max-size-bytes: ${FILE_MAX_SIZE_BYTES:3145728}
     minio:
-      endpoint: ${MINIO_ENDPOINT}
-      access-key: ${MINIO_ACCESS_KEY}
-      secret-key: ${MINIO_SECRET_KEY}
+      endpoint: ${MINIO_ENDPOINT:}
+      access-key: ${MINIO_ACCESS_KEY:}
+      secret-key: ${MINIO_SECRET_KEY:}
       bucket: ${MINIO_BUCKET:five-elements-private}
+    migration:
+      enabled: ${FILE_MIGRATION_ENABLED:false}
+      local-path: ${FILE_MIGRATION_LOCAL_PATH:./data/private-uploads}
   admin:
+    initial-username: ${ADMIN_INITIAL_USERNAME:admin}
     initial-password: ${ADMIN_INITIAL_PASSWORD:}
+    login:
+      max-failed-attempts: ${ADMIN_MAX_FAILED_ATTEMPTS:5}
+      lock-minutes: ${ADMIN_LOCK_MINUTES:30}
